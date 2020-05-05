@@ -1,0 +1,31 @@
+{ "name": "ubborg-playbookie-pmb",
+  "version": "0.0.1",
+  "description": "Translate ubborg dependency trees into ansible playbooks.",
+  "keywords": [],
+
+  "author": "M.K. (https://github.com/mk-pmb)",
+  "homepage": "https://github.com/mk-pmb/ubborg-playbookie-pmb-js/#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mk-pmb/ubborg-playbookie-pmb-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mk-pmb/ubborg-playbookie-pmb-js/issues"
+  },
+  "contributors": [],
+
+  "config": { "for_details": "see npm-config2env-datatypes-demo" },
+
+  "private": false, "license": "ISC",
+
+  "main": "src/playbookie.js",
+  "scripts": { "test": "nodemjs test/all.js" },
+  "directories": { "test": "test" },
+
+  "dependencies": {},
+  "devDependencies": {
+  },
+
+
+  "npm vs. BOM = Unexpected token": "-*- coding: UTF-8 -*-"
+}
