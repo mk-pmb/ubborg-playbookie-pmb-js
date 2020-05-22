@@ -19,10 +19,21 @@
   "private": false, "license": "ISC",
 
   "main": "src/playbookie.js",
+  "bin": "bin/cli.mjs",
   "scripts": { "test": "nodemjs test/all.js" },
   "directories": { "test": "test" },
 
-  "dependencies": {},
+  "dependencies": {
+    "nodemjs": "^0.1.8",
+    "objpop": "^0.1.0",
+    "p-each-series": "^2.1.0",
+    "p-fatal": "^0.1.2",
+    "read-data-file": "^2.0.1",
+    "typechecks-pmb": "^0.190810.1",
+    "univeil": "^0.1.14",
+    "usnam-pmb": "^0.2.4",
+    "vtry": "^1.0.5"
+  },
   "devDependencies": {
   },
 
