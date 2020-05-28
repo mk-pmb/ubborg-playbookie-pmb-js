@@ -40,6 +40,8 @@ ansible playbook to describe the resource described in `resDescr`.
 Usage
 -----
 
+CLI: `./bin/cli.mjs todo.json`
+
 :TODO:
 
 

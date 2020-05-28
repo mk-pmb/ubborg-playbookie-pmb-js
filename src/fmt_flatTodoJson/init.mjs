@@ -49,6 +49,16 @@ function draftObjToYaml(draft, ctx) {
 }
 
 
+async function wrapTypeTr(typeTr, ctx) {
+  const draft = await typeTr(ctx);
+  if (ctx.popProp) { ctx.popProp.expectEmpty(); }
+  if (is.str(draft)) { return draft; }
+  if (is.obj(draft)) { return draftObjToYaml(draft, ctx); }
+  throw new Error(`Unexpected type of translation draft for ${
+    ctx.taskName}: ${typeof draft} "${draft}"`);
+}
+
+
 async function init(format) {
   switch (format.version) {
     case '200509-0700':
@@ -85,11 +95,7 @@ async function init(format) {
       origDescr: resDescr,
       popProp,
     };
-    const draft = await vTry.pr(typeTr, 'Translating ' + taskName)(ctx);
-    if (ctx.popProp) { ctx.popProp.expectEmpty(); }
-    if (is.str(draft)) { return draft; }
-    if (is.obj(draft)) { return draftObjToYaml(draft, ctx); }
-    throw new Error(`Unexpected translation draft for ${taskName}: ${draft}`);
+    return vTry.pr(wrapTypeTr, 'Translating ' + taskName)(typeTr, ctx);
   }
 
   return translate;
