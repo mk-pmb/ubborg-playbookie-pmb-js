@@ -14,14 +14,16 @@ function noopRes(ctx) {
 
 const simpleTypes = {
   bundle: noopRes,
+  iniFile: noopRes,
   osUser: noopRes,
   stage: noopRes,
+  sudoRuleSimple: noopRes,
 };
 
 const typeTranslateCache = new Map();
 
 
-async function lookupTypeTr(typeName) {
+async function lookupTypeTr(typeName, props) {
   let impl;
   try {
     impl = (simpleTypes[typeName]
@@ -29,7 +31,8 @@ async function lookupTypeTr(typeName) {
     );
     mustBe.fun('translation function', impl);
   } catch (impErr) {
-    const err = new Error('Unsupported resource type "' + typeName + '": '
+    const err = new Error('Unsupported resource type ' + typeName + '{'
+      + Object.keys(props).join(',') + '}: '
       + String(impErr.message || impErr));
     throw err;
   }
@@ -40,6 +43,7 @@ async function lookupTypeTr(typeName) {
 
 function draftObjToYaml(draft, ctx) {
   return (univeil.jsonify({ name: ctx.taskName, ...draft }, null, 4)
+    .replace(/(\{|\[)\n +(["\w\+\-][ -\uFFFF]+)\n *(\]|\})/g, '$1 $2 $3')
     .replace(/(\n *)"(\w+)":/g, '$1$2:')
     .replace(/,\n/g, '\n')
     .replace(/\s*[\{\}]\n/g, '\n')
@@ -77,21 +81,23 @@ async function init(format) {
       leftoversMsg: 'Unsupported resource description properies',
     });
     const typeName = mustBe.nest('resource type', resPop('type'));
+    const props = resPop('props');
     const typeTr = (typeTranslateCache.get(typeName)
-      || await lookupTypeTr(typeName));
+      || await lookupTypeTr(typeName, props));
     const resId = mustBe.nest(`ID of ${typeName} resource`, resPop('id'));
     const taskName = `${typeName}[${resId}]`;
-    const popProp = objPop(resPop('props'), {
+    const popProp = objPop(props, {
       leftoversMsg: 'Unsupported props on resource ' + taskName,
     });
     resPop.expectEmpty();
     popProp.mustBe = function poppedPropMustBe(spec, key, dflt) {
-      return mustBe(spec, `Prop "${key}" of ${taskName}`,
-        popProp.ifHas(key, dflt));
+      return mustBe(spec, `Prop "${key}" of ${
+        taskName}`)(popProp.ifHas(key, dflt));
     };
     const ctx = {
       ...sharedCtx,
       taskName,
+      resId,
       origDescr: resDescr,
       popProp,
     };
