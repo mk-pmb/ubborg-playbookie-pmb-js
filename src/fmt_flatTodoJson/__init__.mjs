@@ -2,9 +2,10 @@
 
 import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
-import univeil from 'univeil';
 import objPop from 'objpop';
 import vTry from 'vtry';
+
+import yamlify from '../quickDirtyYaml';
 
 
 function noopRes(ctx) {
@@ -42,14 +43,7 @@ async function lookupTypeTr(typeName, props) {
 
 
 function draftObjToYaml(draft, ctx) {
-  return (univeil.jsonify({ name: ctx.taskName, ...draft }, null, 4)
-    .replace(/(\{|\[)\n +(["\w\+\-][ -\uFFFF]+)\n *(\]|\})/g, '$1 $2 $3')
-    .replace(/(\n *)"(\w+)":/g, '$1$2:')
-    .replace(/,\n/g, '\n')
-    .replace(/\s*[\{\}]\n/g, '\n')
-    .replace(/\s+\n/g, '\n')
-    .replace(/^\s*/g, '  - ')
-    .replace(/\s*\}$/, ''));
+  return yamlify({ name: ctx.taskName, ...draft });
 }
 
 
