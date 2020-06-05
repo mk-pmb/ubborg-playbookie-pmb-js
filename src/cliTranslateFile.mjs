@@ -9,7 +9,7 @@ import makeTranslator from './init';
 
 async function runFromCli(inputFilename) {
   const inputData = await readDataFile(inputFilename);
-  mustBe('nonEmpty ary', inputData);
+  mustBe('nonEmpty ary', 'input data from file ' + inputFilename)(inputData);
   const [metaData, ...resDescrs] = inputData;
   const translate = await makeTranslator(metaData.format);
   async function transPrint(resDescr) {

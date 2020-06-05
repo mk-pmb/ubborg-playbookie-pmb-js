@@ -43,7 +43,14 @@ async function lookupTypeTr(typeName, props) {
 
 
 function draftObjToYaml(draft, ctx) {
-  return yamlify({ name: ctx.taskName, ...draft });
+  const parts = [].concat(draft).filter(Boolean);
+  const n = parts.length;
+  if (n === 1) { return yamlify({ name: ctx.taskName, ...parts[0] }); }
+  if (n < 1) { throw new Error('Empty draft!'); }
+  return draft.map(function each(part, idx) {
+    const name = `${ctx.taskName}:${idx + 1}/${n}`;
+    return yamlify({ name, ...part });
+  }).join('\n');
 }
 
 

@@ -5,9 +5,11 @@ import univeil from 'univeil';
 
 function quickDirtyYaml(x) {
   return (univeil.jsonify(x, null, 4)
-    .replace(/(\{|\[)\n +(["\w\+\-][ -\uFFFF]+)\n *(\]|\})/g, '$1 $2 $3\u0006')
     .replace(/(\n *)"(\w+)":/g, '$1$2:')
     .replace(/,\n/g, '\n')
+    .replace(/: true\n/g, ': yes\n')
+    .replace(/: false\n/g, ': no\n')
+    .replace(/(\{|\[)\n +(["\w\+\-][ -\uFFFF]+)\n *(\]|\})/g, '$1 $2 $3\u0006')
     .replace(/\s*[\{\}]\n/g, '\n')
     .replace(/\u0006/g, '')
     .replace(/\s+\n/g, '\n')
