@@ -10,6 +10,7 @@ function translate(ctx) {
     state: 'absent',
     ...((val !== null) && {
       state: 'present',
+      no_extra_spaces: true,
       value: val,
     }),
   } };

@@ -18,8 +18,17 @@ function mimeTypeToState(mt) {
 }
 
 
+function isRegularFile(mimeType) {
+  if (!mimeType) { return false; }
+  if (!mimeType.startsWith('inode/')) { return true; }
+  const ino = mimeType.split(/[\/;\s]+/)[1];
+  if (ino === 'x-empty') { return true; }
+  return false;
+}
+
+
 function translate(ctx) {
-  const { taskName, resId: path, popProp } = ctx;
+  const { resId: path, popProp } = ctx;
 
   function createOrEnforce(prop, df) {
     const cr = popProp.mustBe('undef | nonEmpty str', 'created' + prop);
@@ -35,15 +44,22 @@ function translate(ctx) {
 
   const mimeType = popProp.mustBe('nul | nonEmpty str', 'mimeType');
 
-  const file = { path, state: 'absent' };
+  let createIfMissing;
+  const meta = { path, state: 'absent' };
   if (mimeType !== null) {
-    Object.assign(file, {
+    if (isRegularFile(mimeType)) {
+      createIfMissing = {
+        name: '\t:createIfMissing',
+        copy: { dest: path, content: '', force: false },
+      };
+    }
+    Object.assign(meta, {
       state: mimeTypeToState(mimeType),
       follow: true,
       force: false,
       owner: createOrEnforce('Owner'),
       group: createOrEnforce('Group'),
-      modes: createOrEnforce('Modes'),
+      mode: createOrEnforce('Modes'),
     });
   }
 
@@ -51,10 +67,12 @@ function translate(ctx) {
   const content = popProp.mustBe('undef | str', 'content');
   if (content) { copy = { dest: path, content }; }
 
-  return [
-    { name: taskName + ':meta', file },
-    (copy && { name: taskName + ':content', copy }),
+  const fileSteps = [
+    createIfMissing,
+    { name: '\t:meta', file: meta },
+    (copy && { name: '\t:content', copy }),
   ];
+  return fileSteps;
 }
 
 
