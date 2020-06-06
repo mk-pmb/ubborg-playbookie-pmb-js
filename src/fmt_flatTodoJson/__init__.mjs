@@ -5,13 +5,9 @@ import mustBe from 'typechecks-pmb/must-be';
 import objPop from 'objpop';
 import vTry from 'vtry';
 
+import noopRes from './noop';
 import yamlify from '../quickDirtyYaml';
 
-
-function noopRes(ctx) {
-  ctx.popProp = false; // eslint-disable-line no-param-reassign
-  return { meta: 'noop' };
-}
 
 const simpleTypes = {
   bundle: noopRes,
