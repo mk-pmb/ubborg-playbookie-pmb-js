@@ -13,7 +13,6 @@ const simpleTypes = {
   bundle: noopRes,
   iniFile: noopRes,
   osUser: noopRes,
-  stage: noopRes,
   sudoRuleSimple: noopRes,
 };
 
@@ -43,6 +42,16 @@ function draftObjToYaml(draft, ctx) {
   const n = parts.length;
   if (n < 1) { throw new Error('Empty draft!'); }
   function renderPart(pt, idx) {
+    if (is.str(pt)) {
+      return (pt
+        .replace(/\t/g, ctx.taskName)
+        .replace(/(^|\n)(?= *\S)/g, '$1  ')
+      );
+    }
+    if (!is.obj(draft)) {
+      throw new Error(`Unexpected type of translation draft part for ${
+        ctx.taskName}: ${typeof pt} "${pt}"`);
+    }
     let { name } = pt;
     if (!name) {
       name = '\t';
@@ -58,10 +67,7 @@ function draftObjToYaml(draft, ctx) {
 async function wrapTypeTr(typeTr, ctx) {
   const draft = await typeTr(ctx);
   if (ctx.popProp) { ctx.popProp.expectEmpty(); }
-  if (is.str(draft)) { return draft; }
-  if (is.obj(draft)) { return draftObjToYaml(draft, ctx); }
-  throw new Error(`Unexpected type of translation draft for ${
-    ctx.taskName}: ${typeof draft} "${draft}"`);
+  return draftObjToYaml(draft, ctx);
 }
 
 
@@ -92,10 +98,7 @@ async function init(format) {
       leftoversMsg: 'Unsupported props on resource ' + taskName,
     });
     resPop.expectEmpty();
-    popProp.mustBe = function poppedPropMustBe(spec, key, dflt) {
-      return mustBe(spec, `Prop "${key}" of ${
-        taskName}`)(popProp.ifHas(key, dflt));
-    };
+    popProp.mustBe = mustBe.getter.bind(null, popProp.ifHas, taskName);
     const ctx = {
       ...sharedCtx,
       taskName,
