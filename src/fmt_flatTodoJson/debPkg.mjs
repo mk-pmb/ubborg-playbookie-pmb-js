@@ -5,6 +5,8 @@ import mustBe from 'typechecks-pmb/must-be';
 
 import parseDpkgPolicy from '../parseDpkgPolicy';
 
+import debPkgRepo from './debPkgRepo';
+
 
 const simpleStates = {
   installed: { state: 'present' },
@@ -71,9 +73,13 @@ function undefer(getSpecProp) {
   const dfrKey = 'deferredDebPkgs';
   const spec = getSpecProp('undef | dictObj', dfrKey);
   if (!spec) { return []; }
+  const sPop = objPop(spec, { mustBe });
   const steps = [];
 
-  const sPop = objPop(spec, { mustBe });
+  if (sPop.mustBe('undef | bool', 'updatePkgLists')) {
+    steps.push(debPkgRepo.pkgListUpdate(false));
+  }
+
   sPop.mustBe('undef | pos0', 'modifies');
   const policy = sPop.mustBe('undef | dictObj', 'policy');
 

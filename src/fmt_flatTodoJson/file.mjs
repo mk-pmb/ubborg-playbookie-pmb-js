@@ -64,7 +64,8 @@ function translate(ctx) {
   }
 
   let copy = false;
-  const content = popProp.mustBe('undef | str', 'content');
+  let content = popProp.mustBe('undef | str | ary', 'content');
+  if (content && content.join) { content = content.join(''); }
   if (content) { copy = { dest: path, content }; }
 
   const fileSteps = [
