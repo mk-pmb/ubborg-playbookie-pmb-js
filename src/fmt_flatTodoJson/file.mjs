@@ -43,11 +43,12 @@ function translate(ctx) {
   }
 
   const mimeType = popProp.mustBe('nul | nonEmpty str', 'mimeType');
+  const regular = isRegularFile(mimeType);
 
   let createIfMissing;
   const meta = { path, state: 'absent' };
   if (mimeType !== null) {
-    if (isRegularFile(mimeType)) {
+    if (regular) {
       createIfMissing = {
         name: '\t:createIfMissing',
         copy: { dest: path, content: '', force: false },
@@ -63,10 +64,17 @@ function translate(ctx) {
     });
   }
 
-  let copy = false;
-  let content = popProp.mustBe('undef | str | ary', 'content');
-  if (content && content.join) { content = content.join(''); }
-  if (content) { copy = { dest: path, content }; }
+  const copy = (function parseContent() {
+    let content = popProp.mustBe('undef | str | ary', 'content');
+    if (content === undefined) { return; }
+    if (content.join) { content = content.join(''); }
+    if (meta.state === 'link') {
+      meta.src = content;
+      return;
+    }
+    if (meta.state === 'file') { return { dest: path, content }; }
+  }());
+
 
   const fileSteps = [
     createIfMissing,
