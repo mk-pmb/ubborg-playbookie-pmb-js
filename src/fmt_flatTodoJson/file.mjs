@@ -42,6 +42,11 @@ function translate(ctx) {
     return (en || cr || df);
   }
 
+  const replace = popProp.mustBe('undef | bool', 'replace');
+  if (replace === false) {
+    throw new Error("Not replacing the file isn't supported yet.");
+  }
+
   const mimeType = popProp.mustBe('nul | nonEmpty str', 'mimeType');
   const regular = isRegularFile(mimeType);
 
