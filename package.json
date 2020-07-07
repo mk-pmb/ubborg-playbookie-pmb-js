@@ -1,5 +1,5 @@
 { "name": "ubborg-playbookie-pmb",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Translate ubborg dependency trees into ansible playbooks.",
   "keywords": [],
 

@@ -2,14 +2,20 @@
 
 const ignoreProps = [
   // ignored because they're managed via a file resource's content.
-  'urls',
+  'debUrls',
   'dists',
   'components',
   'src',
 ];
 
 
-const trans = Object.assign(function translate(ctx) {
+function pkgListUpdate(defer) {
+  return (defer ? '# \t: package lists will be updated later'
+    : { name: '\t:updatePkgLists', apt: { update_cache: true } });
+}
+
+
+function translate(ctx) {
   const { popProp } = ctx;
   ignoreProps.forEach(popProp);
   const steps = [];
@@ -18,16 +24,21 @@ const trans = Object.assign(function translate(ctx) {
   if (state !== 'enabled') { throw new Error('Unsupported state: ' + state); }
 
   const defer = popProp.mustBe('bool', 'deferPkgListUpdate');
-  steps.push(trans.pkgListUpdate(defer));
+  steps.push(pkgListUpdate(defer));
+
+  if (popProp.mustBe('undef | nonEmpty str', 'trustedLocalAptKeyRingName')) {
+    // At this time the actual work should have been done by a file resource.
+    [
+      'keyUrl',
+      'keyVerify',
+    ].forEach(popProp);
+  }
+
   return steps;
-}, {
+}
 
-  pkgListUpdate(defer) {
-    return (defer ? '# \t: package lists will be updated later'
-      : { name: '\t:updatePkgLists', apt: { update_cache: true } });
-  },
-
+Object.assign(translate, {
+  pkgListUpdate,
 });
 
-
-export default trans;
+export default translate;
