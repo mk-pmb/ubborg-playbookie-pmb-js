@@ -1,29 +1,37 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 
-function mimeTypeToState(mt) {
+function parseMimeType(mt) {
   const [typeParts, ...attrs] = mt.split(/\s*;\s*/);
   const [typeCateg, typeName, ...subTypes] = typeParts.split(/\//);
+  const mimeInfo = { regular: false };
+
   function unsupp() { throw new Error('Unsupported mimeType: ' + mt); }
-  if (subTypes.length) { unsupp(); }
-  if (typeCateg === 'inode') {
-    if (attrs.length) { unsupp(); }
-    if (typeName === 'directory') { return typeName; }
-    if (typeName === 'symlink') { return 'link'; }
-    unsupp();
+  const reguFile = { state: 'file', regular: true };
+
+  function decide() {
+    if (subTypes.length) { unsupp(); }
+    if (typeCateg === 'inode') {
+      if (attrs.length) { unsupp(); }
+      if (typeName === 'x-empty') { return reguFile; }
+      if (typeName === 'directory') { return { state: typeName }; }
+      if (typeName === 'symlink') { return { state: 'link' }; }
+      unsupp();
+    }
+    if (typeParts === 'application/octet-stream') {
+      if (attrs.length) { unsupp(); }
+      return reguFile;
+    }
+    if (mt === 'text/plain') {
+      attrs.forEach(function validate(att) {
+        unsupp(att);
+      });
+      return reguFile;
+    }
+    return unsupp();
   }
-  if (mt === 'application/octet-stream;base64') { unsupp(); }
-  if (mt === 'text/plain') { return 'file'; }
-  return unsupp();
-}
 
-
-function isRegularFile(mimeType) {
-  if (!mimeType) { return false; }
-  if (!mimeType.startsWith('inode/')) { return true; }
-  const ino = mimeType.split(/[\/;\s]+/)[1];
-  if (ino === 'x-empty') { return true; }
-  return false;
+  return Object.assign(mimeInfo, decide());
 }
 
 
@@ -47,20 +55,19 @@ function translate(ctx) {
     throw new Error("Not replacing the file isn't supported yet.");
   }
 
-  const mimeType = popProp.mustBe('nul | nonEmpty str', 'mimeType');
-  const regular = isRegularFile(mimeType);
-
   let createIfMissing;
   const meta = { path, state: 'absent' };
+  const mimeType = popProp.mustBe('nul | nonEmpty str', 'mimeType');
   if (mimeType !== null) {
-    if (regular) {
+    const mimeInfo = parseMimeType(mimeType);
+    if (mimeInfo.regular) {
       createIfMissing = {
         name: '\t:createIfMissing',
         copy: { dest: path, content: '', force: false },
       };
     }
     Object.assign(meta, {
-      state: mimeTypeToState(mimeType),
+      state: mimeInfo.state,
       follow: true,
       force: false,
       owner: createOrEnforce('Owner'),
@@ -71,6 +78,18 @@ function translate(ctx) {
 
   const copy = (function parseContent() {
     let content = popProp.mustBe('undef | str | ary', 'content');
+
+    const ulfKey = 'uploadFromLocalPath';
+    let ulfPath = popProp.mustBe('undef | tru | nonEmpty str', ulfKey);
+    if (ulfPath) {
+      if (ulfPath === true) { ulfPath = path; }
+      const nope = (e) => { throw new Error(`prop "${ulfKey}" ${e}`); };
+      if (content !== undefined) { nope('conflicts "content"'); }
+      if (meta.state !== 'file') { nope('only supported for regular files'); }
+      if (!ulfPath.startsWith('/')) { nope('must be absolute'); }
+      return { dest: path, src: ulfPath };
+    }
+
     if (content === undefined) { return; }
     if (content.join) { content = content.join(''); }
     if (meta.state === 'link') {
