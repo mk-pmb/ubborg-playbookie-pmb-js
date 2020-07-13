@@ -1,6 +1,11 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 
+import makeValidationMethodPopper from './file/makeValidationMethodPopper';
+
+const latestKnownAnsibleVersion = '2.9.9';
+
+
 function parseMimeType(mt) {
   const [typeParts, ...attrs] = mt.split(/\s*;\s*/);
   const [typeCateg, typeName, ...subTypes] = typeParts.split(/\//);
@@ -76,6 +81,8 @@ function translate(ctx) {
     });
   }
 
+  const verifyHow = makeValidationMethodPopper(popProp);
+
   const copy = (function parseContent() {
     let content = popProp.mustBe('undef | str | ary', 'content');
 
@@ -87,6 +94,28 @@ function translate(ctx) {
       if (content !== undefined) { nope('conflicts "content"'); }
       if (meta.state !== 'file') { nope('only supported for regular files'); }
       if (!ulfPath.startsWith('/')) { nope('must be absolute'); }
+
+      verifyHow.joinHash('sha1hex', (want) => {
+        const { checksum } = copy;
+        if (checksum && (checksum !== want)) {
+          throw new Error('Disagreement about which SHA-1 checksum to expect');
+        }
+        copy.checksum = want;
+      });
+
+      const ansibleCopyCannot = [
+        'sha256hex',
+        'sha512hex',
+      ].filter(algo => verifyHow.joinHash(algo));
+      if (ansibleCopyCannot.length) {
+        ctx.warn(`Ignoring these checksums because ansible v${
+          latestKnownAnsibleVersion}'s copy module doesn't support them: ${
+          ansibleCopyCannot.join(', ')}`);
+      }
+
+      if (popProp('downloadUrls')) {
+        ctx.warn('Ignoring downloadUrls in favor of', ulfKey);
+      }
       return { dest: path, src: ulfPath };
     }
 
@@ -99,6 +128,7 @@ function translate(ctx) {
     if (meta.state === 'file') { return { dest: path, content }; }
   }());
 
+  verifyHow.expectEmpty('Unsupported validation option(s)');
 
   const fileSteps = [
     createIfMissing,

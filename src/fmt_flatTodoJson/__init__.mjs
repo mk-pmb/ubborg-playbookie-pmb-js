@@ -105,6 +105,7 @@ async function init(format) {
       resId,
       origDescr: resDescr,
       popProp,
+      warn(...args) { console.warn(taskName + ':', ...args); },
     };
     return vTry.pr(wrapTypeTr, 'Translating ' + taskName)(typeTr, ctx);
   }
