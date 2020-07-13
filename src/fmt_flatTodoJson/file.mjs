@@ -1,9 +1,10 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-
 import makeValidationMethodPopper from './file/makeValidationMethodPopper';
+import maybeUploadLocalFiles from './file/maybeUploadLocalFiles';
 
-const latestKnownAnsibleVersion = '2.9.9';
+
+function maybeJoin(x) { return ((x && x.join) ? x.join('') : x); }
 
 
 function parseMimeType(mt) {
@@ -40,7 +41,7 @@ function parseMimeType(mt) {
 }
 
 
-function translate(ctx) {
+async function translate(ctx) {
   const { resId: path, popProp } = ctx;
 
   function createOrEnforce(prop, df) {
@@ -83,44 +84,12 @@ function translate(ctx) {
 
   const verifyHow = makeValidationMethodPopper(popProp);
 
-  const copy = (function parseContent() {
-    let content = popProp.mustBe('undef | str | ary', 'content');
-
-    const ulfKey = 'uploadFromLocalPath';
-    let ulfPath = popProp.mustBe('undef | tru | nonEmpty str', ulfKey);
-    if (ulfPath) {
-      if (ulfPath === true) { ulfPath = path; }
-      const nope = (e) => { throw new Error(`prop "${ulfKey}" ${e}`); };
-      if (content !== undefined) { nope('conflicts "content"'); }
-      if (meta.state !== 'file') { nope('only supported for regular files'); }
-      if (!ulfPath.startsWith('/')) { nope('must be absolute'); }
-
-      verifyHow.joinHash('sha1hex', (want) => {
-        const { checksum } = copy;
-        if (checksum && (checksum !== want)) {
-          throw new Error('Disagreement about which SHA-1 checksum to expect');
-        }
-        copy.checksum = want;
-      });
-
-      const ansibleCopyCannot = [
-        'sha256hex',
-        'sha512hex',
-      ].filter(algo => verifyHow.joinHash(algo));
-      if (ansibleCopyCannot.length) {
-        ctx.warn(`Ignoring these checksums because ansible v${
-          latestKnownAnsibleVersion}'s copy module doesn't support them: ${
-          ansibleCopyCannot.join(', ')}`);
-      }
-
-      if (popProp('downloadUrls')) {
-        ctx.warn('Ignoring downloadUrls in favor of', ulfKey);
-      }
-      return { dest: path, src: ulfPath };
-    }
+  const copy = await (async function parseContent() {
+    const content = maybeJoin(popProp.mustBe('undef | str | ary', 'content'));
+    const ulf = maybeUploadLocalFiles(ctx, content, meta, verifyHow);
+    if (ulf) { return ulf; }
 
     if (content === undefined) { return; }
-    if (content.join) { content = content.join(''); }
     if (meta.state === 'link') {
       meta.src = content;
       return;

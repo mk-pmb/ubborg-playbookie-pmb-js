@@ -64,8 +64,11 @@ function draftObjToYaml(draft, ctx) {
 }
 
 
+function pAllIfArray(x) { return (Array.isArray(x) ? Promise.all(x) : x); }
+
+
 async function wrapTypeTr(typeTr, ctx) {
-  const draft = await typeTr(ctx);
+  const draft = await pAllIfArray(await typeTr(ctx));
   if (ctx.popProp) { ctx.popProp.expectEmpty(); }
   return draftObjToYaml(draft, ctx);
 }
