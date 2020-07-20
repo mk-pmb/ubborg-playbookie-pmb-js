@@ -14,6 +14,7 @@ const simpleTypes = {
   iniFile: noopRes,
   osUser: noopRes,
   sudoRuleSimple: noopRes,
+  sysFacts: noopRes,
 };
 
 const typeTranslateCache = new Map();
