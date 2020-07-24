@@ -1,10 +1,19 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import splitOnce from 'split-string-or-buffer-once-pmb';
+
 import makeValidationMethodPopper from './file/makeValidationMethodPopper';
 import maybeUploadLocalFiles from './file/maybeUploadLocalFiles';
 
 
 function maybeJoin(x) { return ((x && x.join) ? x.join('') : x); }
+function lcInArray(x, a) { return a.includes(x && String(x).toLowerCase()); }
+
+
+const charsetsCompatibleToUtf8 = [
+  'utf-8',
+  'us-ascii',
+];
 
 
 function parseMimeType(mt) {
@@ -28,9 +37,13 @@ function parseMimeType(mt) {
       if (attrs.length) { unsupp(); }
       return reguFile;
     }
-    if (mt === 'text/plain') {
-      attrs.forEach(function validate(att) {
-        unsupp(att);
+    if (typeParts === 'text/plain') {
+      attrs.forEach(function validate(origAtt) {
+        const [atKey, atVal] = (splitOnce('=', origAtt) || [origAtt]);
+        if (atKey === 'charset') {
+          if (lcInArray(atVal, charsetsCompatibleToUtf8)) { return; }
+        }
+        throw new Error('Unsupported mimeType attribute ' + origAtt);
       });
       return reguFile;
     }
