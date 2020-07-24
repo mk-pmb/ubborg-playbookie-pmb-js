@@ -105,6 +105,7 @@ async function translate(ctx) {
     if (content === undefined) { return; }
     if (meta.state === 'link') {
       meta.src = content;
+      meta.follow = false;  // otherwise we might chown/chmod the target!
       return;
     }
     if (meta.state === 'file') { return { dest: path, content }; }
