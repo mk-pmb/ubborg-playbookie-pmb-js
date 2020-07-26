@@ -5,6 +5,7 @@ import debPkg from './debPkg';
 
 async function translate(ctx) {
   const { popProp } = ctx;
+  popProp('param');
   const steps = [
     ...debPkg.undefer(popProp.mustBe),
   ];
