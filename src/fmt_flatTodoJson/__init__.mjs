@@ -4,9 +4,9 @@ import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 import objPop from 'objpop';
 import vTry from 'vtry';
+import yamlify from 'jsonbased-yamlify-pmb';
 
 import noopRes from './noop';
-import yamlify from '../quickDirtyYaml';
 
 
 const simpleTypes = {
@@ -59,9 +59,9 @@ function draftObjToYaml(draft, ctx) {
       if (n > 1) { name += `:${idx + 1}/${n}`; }
     }
     name = name.replace(/\t/g, ctx.taskName);
-    return yamlify(Object.assign({ name: 'rank this prop #1' }, pt, { name }));
+    return Object.assign({ name: 'rank this prop #1' }, pt, { name });
   }
-  return parts.map(renderPart).join('\n');
+  return yamlify(parts.map(renderPart));
 }
 
 
