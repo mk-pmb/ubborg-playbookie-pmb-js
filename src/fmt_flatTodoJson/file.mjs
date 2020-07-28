@@ -55,7 +55,8 @@ function parseMimeType(mt) {
 
 
 async function translate(ctx) {
-  const { resId: path, popProp } = ctx;
+  const { popProp } = ctx;
+  const path = decodeURIComponent(ctx.resId);
 
   function createOrEnforce(prop, df) {
     const cr = popProp.mustBe('undef | nonEmpty str', 'created' + prop);
