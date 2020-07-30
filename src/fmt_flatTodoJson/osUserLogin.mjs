@@ -1,5 +1,15 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+const workarounds = {
+
+  create_home: false,
+  // ^- Sneaky ansible 2.9.6 is really keen on creating home directories
+  //    and littering them with default files. It will use any occasion
+  //    whatsoever as soon as your attention slips for a second.
+
+};
+
+
 const gecosFieldParts = [
   'fullName',
   'buildingAndRoomNumber',
@@ -24,18 +34,23 @@ function parseShell(popProp) {
 }
 
 
-function translate(ctx) {
+const oul = function translate(ctx) {
   const { resId: loginName, popProp } = ctx;
   function popStrEmptyUndef(k) { return popProp.mustBe('undef | str', k, ''); }
 
+  const basics = {
+    ...workarounds,
+    name: loginName,
+  };
+
   if (!popProp.mustBe('bool', 'exists')) {
-    return { user: { name: loginName, state: 'absent' } };
+    return { user: { state: 'absent' } };
   }
 
   return [
     { name: ctx.taskName + ':meta',
       user: {
-        name: loginName,
+        ...basics,
         state: 'present',
         uid: popProp.mustBe('undef | pos num', 'userIdNum'),
         append: true,
@@ -54,12 +69,15 @@ function translate(ctx) {
       // Ansible docs for "password_lock" say
       // "Do not change the password in the same task."
       user: {
-        name: loginName,
+        ...basics,
         password_lock: popProp.mustBe('bool', 'disablePasswordLogin'),
       },
     },
   ];
-}
+};
 
+Object.assign(oul, {
+  workarounds,
+});
 
-export default translate;
+export default oul;
