@@ -112,11 +112,13 @@ async function translate(ctx) {
     if (meta.state === 'file') { return { dest: path, content }; }
   }());
 
+  const debugHints = popProp.mustBe('undef | dictObj', 'debugHints');
+
   verifyHow.expectEmpty('Unsupported validation option(s)');
 
   const fileSteps = [
     createIfMissing,
-    { name: '\t:meta', file: meta },
+    { name: '\t:meta', '#': debugHints, file: meta },
     (copy && { name: '\t:content', copy }),
   ];
   return fileSteps;

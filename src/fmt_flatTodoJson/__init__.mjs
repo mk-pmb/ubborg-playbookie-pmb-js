@@ -54,13 +54,23 @@ function draftObjToYaml(draft, ctx) {
         ctx.taskName}: ${typeof pt} "${pt}"`);
     }
     let { name } = pt;
+    const task = { name: 'rank this prop #1', ...pt };
     if (!name) {
       name = '\t';
       if (n > 1) { name += `:${idx + 1}/${n}`; }
     }
     name = name.replace(/\t/g, ctx.taskName);
-    const task = Object.assign({ name: 'rank this prop #1' }, pt, { name });
-    return yamlify([task]);
+    task.name = name;
+    delete task['#'];
+    let yaml = yamlify([task]);
+
+    let hints = pt['#'];
+    if (hints) {
+      hints = yamlify(hints).trim().replace(/^|\n/g, '\n    # ');
+      yaml = yaml.replace(/(?=\n|$)/, hints);
+    }
+
+    return yaml;
   }
   return parts.map(renderPart).join('');
 }
