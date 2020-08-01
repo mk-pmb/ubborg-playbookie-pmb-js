@@ -2,13 +2,16 @@
 
 import splitOnce from 'split-string-or-buffer-once-pmb';
 
+import pbkForgetVars from '../pbkUtil/forgetVars';
+import pbkVarSlot from '../pbkUtil/varSlot';
 import makeValidationMethodPopper from './file/makeValidationMethodPopper';
 import maybeUploadLocalFiles from './file/maybeUploadLocalFiles';
-
 
 function maybeJoin(x) { return ((x && x.join) ? x.join('') : x); }
 function lcInArray(x, a) { return a.includes(x && String(x).toLowerCase()); }
 
+
+const statVar = 'tmp';
 
 const charsetsCompatibleToUtf8 = [
   'utf-8',
@@ -75,7 +78,9 @@ async function translate(ctx) {
     throw new Error("Not replacing the file isn't supported yet.");
   }
 
+  const debugHints = { ...popProp.mustBe('undef | dictObj', 'debugHints') };
   let createIfMissing;
+  let needPreStat = false;
   const meta = { path, state: 'absent' };
   const mimeType = popProp.mustBe('nul | nonEmpty str', 'mimeType');
   if (mimeType !== null) {
@@ -98,28 +103,57 @@ async function translate(ctx) {
 
   const verifyHow = makeValidationMethodPopper(popProp);
 
+  function configureLink(dest) {
+    meta.src = dest;
+    meta.follow = false;  // otherwise we might chown/chmod the target!
+
+    /* === Use the force? ===
+      We'd like to ignore whether the target exists yet, but we'd also
+      like to not replace a potentially-important file.
+      Unfortunately, ansible 2.9 conflates both of these totally different
+      risk considerations into one option, so let's at least try to
+      mitigate the damages.
+
+      Situations with acceptable risk of replacing `path`:
+        - When it doesn't exist yet: Hopefully no race condition.
+        - When it's a symlink: We assume it was already managed by your
+          config system and the old value is "backed up" somewhere in your
+          config recipe git repo.
+    */
+    needPreStat = true;
+    meta.force = pbkVarSlot(vs => vs.condList('or', [
+      `not ${statVar}.stat.exists`,
+      `${statVar}.stat.islnk`,
+    ]));
+  }
+
   const copy = await (async function parseContent() {
     const content = maybeJoin(popProp.mustBe('undef | str | ary', 'content'));
     const ulf = maybeUploadLocalFiles(ctx, content, meta, verifyHow);
     if (ulf) { return ulf; }
-
     if (content === undefined) { return; }
-    if (meta.state === 'link') {
-      meta.src = content;
-      meta.follow = false;  // otherwise we might chown/chmod the target!
-      return;
-    }
+    if (meta.state === 'link') { return configureLink(content); }
     if (meta.state === 'file') { return { dest: path, content }; }
   }());
 
-  const debugHints = popProp.mustBe('undef | dictObj', 'debugHints');
+  (function checkTgtMT() {
+    const k = 'targetMimeType';
+    const v = popProp.mustBe('undef | nonEmpty str', k);
+    if (!v) { return; }
+    const h = debugHints[k];
+    debugHints[k] = (h ? [h, v] : v);
+    if (meta.state === 'link') { return; }
+    throw new Error(k + ' is valid only for links.');
+  }());
 
   verifyHow.expectEmpty('Unsupported validation option(s)');
 
   const fileSteps = [
     createIfMissing,
+    (needPreStat && { name: '\t:preStat', stat: { path }, register: statVar }),
     { name: '\t:meta', '#': debugHints, file: meta },
     (copy && { name: '\t:content', copy }),
+    (needPreStat && pbkForgetVars(statVar)),
   ];
   return fileSteps;
 }

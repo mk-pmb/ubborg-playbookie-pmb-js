@@ -64,11 +64,15 @@ function draftObjToYaml(draft, ctx) {
     delete task['#'];
     let yaml = yamlify([task]);
 
-    let hints = pt['#'];
-    if (hints) {
-      hints = yamlify(hints).trim().replace(/^|\n/g, '\n    # ');
+    (function debugHints() {
+      let hints = pt['#'];
+      if (!hints) { return; }
+      hints = yamlify(hints).trim();
+      if (hints === '{}') { return; }
+      if (hints === '[]') { return; }
+      hints = hints.replace(/^|\n/g, '\n    # ');
       yaml = yaml.replace(/(?=\n|$)/, hints);
-    }
+    }());
 
     return yaml;
   }
