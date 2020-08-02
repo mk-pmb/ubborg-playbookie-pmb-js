@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import getOwn from 'getown';
 import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 import objPop from 'objpop';
@@ -23,7 +24,7 @@ const typeTranslateCache = new Map();
 async function lookupTypeTr(typeName, props) {
   let impl;
   try {
-    impl = (simpleTypes[typeName]
+    impl = (getOwn(simpleTypes, typeName)
       || (await import('./' + typeName)).default
     );
     mustBe.fun('translation function', impl);
