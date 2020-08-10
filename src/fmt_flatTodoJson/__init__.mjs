@@ -118,7 +118,7 @@ async function init(format) {
       leftoversMsg: 'Unsupported props on resource ' + taskName,
     });
     resPop.expectEmpty();
-    popProp.mustBe = mustBe.getter.bind(null, popProp.ifHas, taskName);
+    popProp.mustBe = mustBe.getter.bind(null, popProp, taskName);
     const ctx = {
       ...sharedCtx,
       taskName,

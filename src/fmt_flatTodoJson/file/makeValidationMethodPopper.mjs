@@ -17,7 +17,7 @@ function joinHash(key, func) {
 
 function makeValidationMethodPopper(popProp) {
   const veri = popProp.mustBe('undef | fal | dictObj', 'verifyContent');
-  const popVali = objPop((veri || false), { mustBe });
+  const popVali = objPop(veri, { mustBe });
   Object.assign(popVali, {
     joinHash,
   });

@@ -17,7 +17,7 @@ function parseDpkgPolicy(policy) {
     ...aMap({
       conflicts:  'conflict',
       breaks:     'incompatible',
-    }, rule => mustLookupProp('policy rules', pop.ifHas, dangerZone, rule)),
+    }, rule => mustLookupProp('policy rules', pop, dangerZone, rule)),
     confold:    'force',
   };
 
