@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import getOwn from 'getown';
 import objPop from 'objpop';
 import mustBe from 'typechecks-pmb/must-be';
 
@@ -39,7 +40,7 @@ function translate(ctx) {
   const { resId: pkgName, popProp } = ctx;
 
   const stateSpec = popProp.mustBe('nonEmpty str', 'state');
-  const pbkState = simpleStates[stateSpec];
+  const pbkState = getOwn(simpleStates, stateSpec);
   if (!pbkState) { throw new Error('Unsupported state: ' + stateSpec); }
 
   const policy = popProp.mustBe('undef | dictObj', 'policy');
