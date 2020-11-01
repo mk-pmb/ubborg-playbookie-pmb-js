@@ -57,10 +57,14 @@ function draftObjToYaml(draft, ctx) {
     let { name } = pt;
     const task = { name: 'rank this prop #1', ...pt };
     if (!name) {
-      name = '\t';
-      if (n > 1) { name += `:${idx + 1}/${n}`; }
+      name = '';
+      if (n > 1) { name += `${idx + 1}/${n}`; }
     }
-    name = name.replace(/\t/g, ctx.taskName);
+    if (name.includes('\t')) {
+      name = name.replace(/\t/g, ctx.taskName);
+    } else {
+      name = ctx.taskName + ':' + name;
+    }
     task.name = name;
     delete task['#'];
     let yaml = yamlify([task]);

@@ -2,8 +2,15 @@
 
 function translate(ctx) {
   const mustPop = ctx.popProp.mustBe;
-  const tasks = [].concat(mustPop('undef | dictObj', 'task'),
+  let tasks = [].concat(mustPop('undef | dictObj', 'task'),
     mustPop('undef | ary', 'tasks')).filter(Boolean);
+
+  if (tasks.length > 1) {
+    tasks = tasks.map(function prefixParentTaskName(task) {
+      return { ...task, name: ctx.taskName + ':' + task.name };
+    });
+  }
+
   const blockExtras = mustPop('undef | dictObj', 'blockExtras');
   if (!blockExtras) { return tasks; }
   return { ...blockExtras, block: tasks };
