@@ -70,8 +70,19 @@ function translate(ctx) {
 }
 
 
+const dfrKey = 'deferredDebPkgs';
+const aptDownloadProgressHint = (function hint() {
+  const msg = [
+    ('Gonna install packages now. One way to monitor apt-get downloads is: '
+      + 'sudo watch ls -hl /var/cache/apt/archives/partial/'),
+    ('When downloads are done, you can monitor setup activity with: '
+      + 'sudo tail -F /var/log/dpkg.log'),
+  ];
+  return { name: `\t:${dfrKey}:downloadProgressHint`, debug: { msg } };
+}());
+
+
 function undefer(getSpecProp) {
-  const dfrKey = 'deferredDebPkgs';
   const spec = getSpecProp('undef | dictObj', dfrKey);
   if (!spec) { return []; }
   const sPop = objPop(spec, { mustBe });
@@ -97,6 +108,7 @@ function undefer(getSpecProp) {
     const [draft, ...more] = translate(vCtx);
     vRes.expectEmpty('Unused properties');
     if (more.length) { throw new Error('Too many steps!'); }
+    if (state === 'installed') { steps.push(aptDownloadProgressHint); }
     steps.push({ name: `\t:${dfrKey}:${prop}`, ...draft });
   }
   tr('removes',   'absent');
