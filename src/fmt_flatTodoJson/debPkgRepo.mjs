@@ -2,9 +2,11 @@
 
 const ignoreProps = [
   // ignored because they're managed via a file resource's content.
+  'components',
   'debUrls',
   'dists',
-  'components',
+  'keyUrls',
+  'keyVerify',
   'src',
 ];
 
@@ -26,12 +28,9 @@ function translate(ctx) {
   const defer = popProp.mustBe('bool', 'deferPkgListUpdate');
   steps.push(pkgListUpdate(defer));
 
-  if (popProp.mustBe('undef | nonEmpty str', 'trustedLocalAptKeyRingName')) {
-    // At this time the actual work should have been done by a file resource.
-    [
-      'keyUrl',
-      'keyVerify',
-    ].forEach(popProp);
+  const lakr = 'trustedLocalAptKeyRingName';
+  if (popProp.mustBe('undef | nonEmpty str', lakr)) {
+    throw new Error(lakr + ' is deprecated!');
   }
 
   return steps;

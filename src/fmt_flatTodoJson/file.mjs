@@ -5,6 +5,7 @@ import splitOnce from 'split-string-or-buffer-once-pmb';
 import pbkForgetVars from '../pbkUtil/forgetVars';
 import pbkVarSlot from '../pbkUtil/varSlot';
 import makeValidationMethodPopper from './file/makeValidationMethodPopper';
+import maybeDownloadFilesFromUrls from './file/maybeDownloadFilesFromUrls';
 import maybeUploadLocalFiles from './file/maybeUploadLocalFiles';
 
 function maybeJoin(x) { return ((x && x.join) ? x.join('') : x); }
@@ -127,13 +128,17 @@ async function translate(ctx) {
     ]));
   }
 
-  const copy = await (async function parseContent() {
+  const fileContentStep = await (async function parseContent() {
     const content = maybeJoin(popProp.mustBe('undef | str | ary', 'content'));
-    const ulf = maybeUploadLocalFiles(ctx, content, meta, verifyHow);
-    if (ulf) { return ulf; }
+    const external = (
+      maybeUploadLocalFiles(ctx, content, meta, verifyHow)
+      || maybeDownloadFilesFromUrls(ctx, content, meta, verifyHow)
+    );
+    if (external) { return external; }
     if (content === undefined) { return; }
-    if (meta.state === 'link') { return configureLink(content); }
-    if (meta.state === 'file') { return { dest: path, content }; }
+    const mst = meta.state;
+    if (mst === 'link') { return configureLink(content); }
+    if (mst === 'file') { return { copy: { dest: path, content } }; }
   }());
 
   (function checkTgtMT() {
@@ -146,13 +151,16 @@ async function translate(ctx) {
     throw new Error(k + ' is valid only for links.');
   }());
 
+  verifyHow.skipUnsuppAlgos([
+    'gpgKeySummary',
+  ], { ctx });
   verifyHow.expectEmpty('Unsupported validation option(s)');
 
   const fileSteps = [
     createIfMissing,
     (needPreStat && { name: '\t:preStat', stat: { path }, register: statVar }),
     { name: '\t:meta', '#': debugHints, file: meta },
-    (copy && { name: '\t:content', copy }),
+    (fileContentStep && { name: '\t:content', ...fileContentStep }),
     (needPreStat && pbkForgetVars(statVar)),
   ];
   return fileSteps;

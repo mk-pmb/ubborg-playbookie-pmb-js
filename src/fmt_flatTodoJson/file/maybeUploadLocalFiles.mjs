@@ -14,10 +14,11 @@ const copyModeProps = [
 
 function maybeUploadLocalFiles(ctx, content, meta, verifyHow) {
   const { resId: path, popProp } = ctx;
-  const copyHow = { dest: path };
   let ulfPath = popProp.mustBe('undef | tru | nonEmpty str', ulfKey);
   if (!ulfPath) { return; }
+
   if (content !== undefined) { nope('conflicts "content"'); }
+  const copyHow = { dest: path };
   if (ulfPath === true) { ulfPath = path; }
   if (!ulfPath.startsWith('/')) { nope('must be absolute'); }
   mustBe.oneOf(['file', 'directory'],
@@ -38,21 +39,16 @@ function maybeUploadLocalFiles(ctx, content, meta, verifyHow) {
     copyHow.checksum = want;
   });
 
-  const ansibleCopyCannot = [
+  verifyHow.skipUnsuppAlgos([
     'sha256hex',
     'sha512hex',
-  ].filter(algo => verifyHow.joinHash(algo));
-  if (ansibleCopyCannot.length) {
-    ctx.warn(`Ignoring these checksums because ansible v${
-      latestKnownAnsibleVersion}'s copy module doesn't support them: ${
-      ansibleCopyCannot.join(', ')}`);
-  }
+  ], { ctx, blame: `ansible v${latestKnownAnsibleVersion}'s copy module` });
 
   if (popProp('downloadUrls')) {
     ctx.warn('Ignoring downloadUrls in favor of', ulfKey);
   }
 
-  return copyHow;
+  return { copy: copyHow };
 }
 
 
