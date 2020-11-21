@@ -2,6 +2,7 @@
 
 const ignoreProps = [
   // ignored because they're managed via a file resource's content.
+  'archs',
   'components',
   'debUrls',
   'dists',
