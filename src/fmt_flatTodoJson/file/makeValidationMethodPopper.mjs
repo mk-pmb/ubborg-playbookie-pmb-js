@@ -28,7 +28,7 @@ function skipUnsuppAlgos(algos, opt) {
   skipped.blame = (blame || pkgDescr);
   if (ctx && ctx.warn) {
     ctx.warn('Ignoring these checksums because ' + skipped.blame
-      + "doesn't support them: " + skipped.join(', '));
+      + " doesn't support them: " + skipped.join(', '));
   }
   return skipped;
 }

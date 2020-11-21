@@ -20,7 +20,7 @@ function maybeUploadLocalFiles(ctx, content, meta, verifyHow) {
   if (content !== undefined) { nope('conflicts "content"'); }
   const copyHow = { dest: path };
   if (ulfPath === true) { ulfPath = path; }
-  if (!ulfPath.startsWith('/')) { nope('must be absolute'); }
+  if (!ulfPath.startsWith('/')) { nope('must be absolute, not ' + ulfPath); }
   mustBe.oneOf(['file', 'directory'],
     'Target inode type for ' + ulfKey)(meta.state);
   if (meta.state === 'directory') {
