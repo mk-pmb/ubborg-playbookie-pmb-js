@@ -24,7 +24,14 @@ function translate(ctx) {
   const steps = [];
 
   const state = popProp.mustBe('nonEmpty str', 'state');
-  if (state !== 'enabled') { throw new Error('Unsupported state: ' + state); }
+  switch (state) {
+    case 'enabled':
+    case 'disabled':
+    case 'absent':
+      break;
+    default:
+      throw new Error('Unsupported state: ' + state);
+  }
 
   const defer = popProp.mustBe('bool', 'deferPkgListUpdate');
   steps.push(pkgListUpdate(defer));
