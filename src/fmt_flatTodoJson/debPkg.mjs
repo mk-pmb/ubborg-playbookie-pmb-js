@@ -74,7 +74,7 @@ const dfrKey = 'deferredDebPkgs';
 const aptDownloadProgressHint = (function hint() {
   const msg = [
     ('Gonna install packages now. One way to monitor apt-get downloads is: '
-      + 'sudo watch ls -hl /var/cache/apt/archives/partial/'),
+      + 'sudo watch ls -ho /var/cache/apt/archives/partial/'),
     ('When downloads are done, you can monitor setup activity with: '
       + 'sudo tail -F /var/log/dpkg.log'),
   ];
