@@ -4,6 +4,7 @@ import login from './osUserLogin';
 
 function translate(ctx) {
   const { popProp } = ctx;
+  popProp('assumeUserExists');  // Should have been handled by planner
   const m = popProp.mustBe('bool', 'member');
   if (!m) {
     throw new Error("Removing users from groups isn't supported yet.");
