@@ -3,7 +3,7 @@
 import pbkForgetVars from '../../pbkUtil/forgetVars';
 import pbkVarSlot from '../../pbkUtil/varSlot';
 
-import parseMimeType from './parseMimeType';
+import learnMimeMeta from './learnMimeMeta';
 import makeValidationMethodPopper from './makeValidationMethodPopper';
 import maybeDownloadFilesFromUrls from './maybeDownloadFilesFromUrls';
 import maybeUploadLocalFiles from './maybeUploadLocalFiles';
@@ -24,44 +24,8 @@ async function translate(ctx) {
     debugHints,
     verifyHow,
   });
-
-  function createOrEnforce(prop, df) {
-    const cr = popProp.mustBe('undef | nonEmpty str', 'created' + prop);
-    const en = popProp.mustBe('undef | nonEmpty str', 'enforced' + prop);
-    if (cr && (cr !== en)) {
-      throw new Error(`created${prop} different from enforced${
-        prop} isn't supported yet.`);
-      // We'd need to construct something ourselves that would 'stat'
-      // and then branch conditionally. => Postponed until required.
-    }
-    return (en || cr || df);
-  }
-
-  const replace = popProp.mustBe('undef | bool', 'replace');
-  if (replace === false) {
-    throw new Error("Not replacing the file isn't supported yet.");
-  }
-
-  const meta = { path, state: 'absent' };
-  const mimeType = popProp.mustBe('nul | nonEmpty str', 'mimeType');
-  if (mimeType !== null) {
-    const mimeInfo = parseMimeType(mimeType);
-    if (mimeInfo.regular) {
-      ctx.upd({ createIfMissing: {
-        name: '\t:createIfMissing',
-        copy: { dest: path, content: '', force: false },
-      } });
-    }
-    Object.assign(meta, {
-      state: mimeInfo.state,
-      follow: true,
-      force: false,
-      owner: createOrEnforce('Owner'),
-      group: createOrEnforce('Group'),
-      mode: createOrEnforce('Modes'),
-    });
-  }
-
+  learnMimeMeta(ctx);
+  const { meta } = ctx;
 
   function configureLink(dest) {
     meta.src = dest;
