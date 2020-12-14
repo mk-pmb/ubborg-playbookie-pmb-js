@@ -9,11 +9,11 @@ function maybeJoin(x) { return ((x && x.join) ? x.join('') : x); }
 
 
 async function parseContent(ctx) {
-  const { path, popProp, meta, verifyHow } = ctx;
+  const { path, popProp, meta } = ctx;
   const content = maybeJoin(popProp.mustBe('undef | str | ary', 'content'));
   const external = (
-    maybeUploadLocalFiles(ctx, content, meta, verifyHow)
-    || maybeDownloadFilesFromUrls(ctx, content, meta, verifyHow)
+    maybeUploadLocalFiles(ctx, content)
+    || maybeDownloadFilesFromUrls(ctx, content)
   );
   if (external) { return external; }
   if (content === undefined) { return; }

@@ -7,8 +7,8 @@ const dlfKey = 'downloadUrls';
 function nope(e) { throw new Error(`prop "${dlfKey}" ${e}`); }
 
 
-function maybeDownloadFilesFromUrls(ctx, content, meta, verifyHow) {
-  const { resId: path, popProp } = ctx;
+function maybeDownloadFilesFromUrls(ctx, content) {
+  const { path, popProp, meta, verifyHow } = ctx;
   const urls = popProp.mustBe('undef | nonEmpty ary', dlfKey);
   if (!urls) { return; }
 

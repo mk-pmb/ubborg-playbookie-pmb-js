@@ -12,8 +12,8 @@ const copyModeProps = [
   // nope, try to preserve the source modes // 'mode',
 ];
 
-function maybeUploadLocalFiles(ctx, content, meta, verifyHow) {
-  const { resId: path, popProp } = ctx;
+function maybeUploadLocalFiles(ctx, content) {
+  const { path, popProp, meta, verifyHow } = ctx;
   let ulfPath = popProp.mustBe('undef | tru | nonEmpty str', ulfKey);
   if (!ulfPath) { return; }
 
