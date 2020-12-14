@@ -16,7 +16,8 @@ function pbk_cmp () {
       ;;
   esac
   for ITEM in "${TODO[@]}"; do
-    [ -f "$ITEM" ] || return $?$(echo "E: no such file: $ITEM" >&2)
+    [ -f "$ITEM" ] || [ -f "$ITEM.mjs" ] || return $?$(
+      echo "E: no such file: $ITEM" >&2)
     ITEM="${ITEM%.mjs}"
     ITEM="${ITEM%.pbk-want.yaml}"
     pbk_cmp_one "$ITEM" || return $?
@@ -28,19 +29,21 @@ function pbk_cmp_one () {
   local PLAN="$1"
   echo -n "$PLAN: "
   local BFN="$(basename -- "$PLAN")"
-  local DEST="tmp.pbk.$BFN.$UNIQ.yaml"
-  local DIFF="tmp.pbk.$BFN.diff"
+  local JSON="tmp.$BFN.$UNIQ.flatTodo.json"
+  local PLBK="tmp.$BFN.$UNIQ.yaml"
+  local DIFF="tmp.$BFN.diff"
   SECONDS=0
-  ubborg-planner-pmb depsTree --format=flatTodoJson "$PLAN" \
-    | ubborg-playbookie-pmb '<fmt=json>/dev/stdin' >"$DEST"
+  ubborg-planner-pmb depsTree --format=flatTodoJson \
+    -- "$PLAN" >"$JSON" || return $?
+  ubborg-playbookie-pmb "$JSON" >"$PLBK" || return $?
   echo -n "$SECONDS sec, "
-  wc --lines -- "$DEST"
+  wc --lines -- "$PLBK"
 
   local WANT="$PLAN.pbk-want.yaml"
   if [ -s "$WANT" ]; then
-    if diff -sU 5 -- "$WANT" "$DEST" >"$DIFF"; then
+    if diff -sU 5 -- "$WANT" "$PLBK" >"$DIFF"; then
       echo "    == $WANT"
-      rm -- "$DIFF" "$DEST"
+      rm -- "$JSON" "$PLBK" "$DIFF"
     else
       head --lines=20 -- "$DIFF" | colordiff
     fi
