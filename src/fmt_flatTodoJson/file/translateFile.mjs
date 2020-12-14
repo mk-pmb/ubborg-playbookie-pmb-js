@@ -1,9 +1,9 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import pbkForgetVars from '../../pbkUtil/forgetVars';
-import pbkVarSlot from '../../pbkUtil/varSlot';
 
 import learnMimeMeta from './learnMimeMeta';
+import configureLink from './configureLink';
 import makeValidationMethodPopper from './makeValidationMethodPopper';
 import maybeDownloadFilesFromUrls from './maybeDownloadFilesFromUrls';
 import maybeUploadLocalFiles from './maybeUploadLocalFiles';
@@ -21,35 +21,12 @@ async function translate(ctx) {
   const verifyHow = makeValidationMethodPopper(popProp);
   ctx.upd({
     path,
+    statVar,
     debugHints,
     verifyHow,
   });
   learnMimeMeta(ctx);
   const { meta } = ctx;
-
-  function configureLink(dest) {
-    meta.src = dest;
-    meta.follow = false;  // otherwise we might chown/chmod the target!
-
-    /* === Use the force? ===
-      We'd like to ignore whether the target exists yet, but we'd also
-      like to not replace a potentially-important file.
-      Unfortunately, ansible 2.9 conflates both of these totally different
-      risk considerations into one option, so let's at least try to
-      mitigate the damages.
-
-      Situations with acceptable risk of replacing `path`:
-        - When it doesn't exist yet: Hopefully no race condition.
-        - When it's a symlink: We assume it was already managed by your
-          config system and the old value is "backed up" somewhere in your
-          config recipe git repo.
-    */
-    ctx.upd({ needPreStat: true });
-    meta.force = pbkVarSlot(vs => vs.condList('or', [
-      `not ${statVar}.stat.exists`,
-      `${statVar}.stat.islnk`,
-    ]));
-  }
 
   const fileContentStep = await (async function parseContent() {
     const content = maybeJoin(popProp.mustBe('undef | str | ary', 'content'));
@@ -60,7 +37,7 @@ async function translate(ctx) {
     if (external) { return external; }
     if (content === undefined) { return; }
     const mst = meta.state;
-    if (mst === 'link') { return configureLink(content); }
+    if (mst === 'link') { return configureLink(ctx, content); }
     if (mst === 'file') { return { copy: { dest: path, content } }; }
   }());
 
