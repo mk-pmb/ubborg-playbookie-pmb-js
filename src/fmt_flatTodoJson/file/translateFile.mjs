@@ -1,11 +1,11 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import pbkForgetVars from '../pbkUtil/forgetVars';
-import pbkVarSlot from '../pbkUtil/varSlot';
-import parseMimeType from './file/parseMimeType';
-import makeValidationMethodPopper from './file/makeValidationMethodPopper';
-import maybeDownloadFilesFromUrls from './file/maybeDownloadFilesFromUrls';
-import maybeUploadLocalFiles from './file/maybeUploadLocalFiles';
+import pbkForgetVars from '../../pbkUtil/forgetVars';
+import pbkVarSlot from '../../pbkUtil/varSlot';
+import parseMimeType from './parseMimeType';
+import makeValidationMethodPopper from './makeValidationMethodPopper';
+import maybeDownloadFilesFromUrls from './maybeDownloadFilesFromUrls';
+import maybeUploadLocalFiles from './maybeUploadLocalFiles';
 
 function maybeJoin(x) { return ((x && x.join) ? x.join('') : x); }
 
