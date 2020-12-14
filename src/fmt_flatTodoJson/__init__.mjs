@@ -20,6 +20,11 @@ const simpleTypes = {
 
 const typeTranslateCache = new Map();
 
+const contextMethods = {
+  warn(...args) { console.warn('%s:', this.taskName, ...args); },
+  upd(...news) { return Object.assign(this, ...news); },
+};
+
 
 async function lookupTypeTr(typeName, props) {
   let impl;
@@ -129,7 +134,7 @@ async function init(format) {
       resId,
       origDescr: resDescr,
       popProp,
-      warn(...args) { console.warn(taskName + ':', ...args); },
+      ...contextMethods,
     };
     return vTry.pr(wrapTypeTr, 'Translating ' + taskName)(typeTr, ctx);
   }

@@ -2,6 +2,7 @@
 
 import pbkForgetVars from '../../pbkUtil/forgetVars';
 import pbkVarSlot from '../../pbkUtil/varSlot';
+
 import parseMimeType from './parseMimeType';
 import makeValidationMethodPopper from './makeValidationMethodPopper';
 import maybeDownloadFilesFromUrls from './maybeDownloadFilesFromUrls';
@@ -16,6 +17,13 @@ const statVar = 'tmp';
 async function translate(ctx) {
   const { popProp } = ctx;
   const path = decodeURIComponent(ctx.resId);
+  const debugHints = { ...popProp.mustBe('undef | dictObj', 'debugHints') };
+  const verifyHow = makeValidationMethodPopper(popProp);
+  ctx.upd({
+    path,
+    debugHints,
+    verifyHow,
+  });
 
   function createOrEnforce(prop, df) {
     const cr = popProp.mustBe('undef | nonEmpty str', 'created' + prop);
@@ -34,18 +42,15 @@ async function translate(ctx) {
     throw new Error("Not replacing the file isn't supported yet.");
   }
 
-  const debugHints = { ...popProp.mustBe('undef | dictObj', 'debugHints') };
-  let createIfMissing;
-  let needPreStat = false;
   const meta = { path, state: 'absent' };
   const mimeType = popProp.mustBe('nul | nonEmpty str', 'mimeType');
   if (mimeType !== null) {
     const mimeInfo = parseMimeType(mimeType);
     if (mimeInfo.regular) {
-      createIfMissing = {
+      ctx.upd({ createIfMissing: {
         name: '\t:createIfMissing',
         copy: { dest: path, content: '', force: false },
-      };
+      } });
     }
     Object.assign(meta, {
       state: mimeInfo.state,
@@ -57,7 +62,6 @@ async function translate(ctx) {
     });
   }
 
-  const verifyHow = makeValidationMethodPopper(popProp);
 
   function configureLink(dest) {
     meta.src = dest;
@@ -76,7 +80,7 @@ async function translate(ctx) {
           config system and the old value is "backed up" somewhere in your
           config recipe git repo.
     */
-    needPreStat = true;
+    ctx.upd({ needPreStat: true });
     meta.force = pbkVarSlot(vs => vs.condList('or', [
       `not ${statVar}.stat.exists`,
       `${statVar}.stat.islnk`,
@@ -106,17 +110,18 @@ async function translate(ctx) {
     throw new Error(k + ' is valid only for links.');
   }());
 
-  verifyHow.skipUnsuppAlgos([
+  ctx.verifyHow.skipUnsuppAlgos([
     'gpgKeySummary',
   ], { ctx });
-  verifyHow.expectEmpty('Unsupported validation option(s)');
+  ctx.verifyHow.expectEmpty('Unsupported validation option(s)');
 
   const fileSteps = [
-    createIfMissing,
-    (needPreStat && { name: '\t:preStat', stat: { path }, register: statVar }),
+    ctx.createIfMissing,
+    (ctx.needPreStat
+      && { name: '\t:preStat', stat: { path }, register: statVar }),
     { name: '\t:meta', '#': debugHints, file: meta },
     (fileContentStep && { name: '\t:content', ...fileContentStep }),
-    (needPreStat && pbkForgetVars(statVar)),
+    (ctx.needPreStat && pbkForgetVars(statVar)),
   ];
   return fileSteps;
 }
