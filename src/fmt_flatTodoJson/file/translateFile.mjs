@@ -2,13 +2,9 @@
 
 import pbkForgetVars from '../../pbkUtil/forgetVars';
 
-import learnMimeMeta from './learnMimeMeta';
-import configureLink from './configureLink';
 import makeValidationMethodPopper from './makeValidationMethodPopper';
-import maybeDownloadFilesFromUrls from './maybeDownloadFilesFromUrls';
-import maybeUploadLocalFiles from './maybeUploadLocalFiles';
-
-function maybeJoin(x) { return ((x && x.join) ? x.join('') : x); }
+import learnMimeMeta from './learnMimeMeta';
+import parseContent from './parseContent';
 
 
 const statVar = 'tmp';
@@ -27,19 +23,7 @@ async function translate(ctx) {
   });
   learnMimeMeta(ctx);
   const { meta } = ctx;
-
-  const fileContentStep = await (async function parseContent() {
-    const content = maybeJoin(popProp.mustBe('undef | str | ary', 'content'));
-    const external = (
-      maybeUploadLocalFiles(ctx, content, meta, verifyHow)
-      || maybeDownloadFilesFromUrls(ctx, content, meta, verifyHow)
-    );
-    if (external) { return external; }
-    if (content === undefined) { return; }
-    const mst = meta.state;
-    if (mst === 'link') { return configureLink(ctx, content); }
-    if (mst === 'file') { return { copy: { dest: path, content } }; }
-  }());
+  const fileContentStep = await parseContent(ctx);
 
   (function checkTgtMT() {
     const k = 'targetMimeType';
