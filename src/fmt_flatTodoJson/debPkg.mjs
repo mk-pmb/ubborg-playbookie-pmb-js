@@ -104,7 +104,7 @@ function undefer(getSpecProp) {
       defer: false,
       policy,
     }, { mustBe });
-    const vCtx = { resId: pkgs, popProp: vRes };
+    const vCtx = { resId: pkgs.slice().sort(), popProp: vRes };
     const [draft, ...more] = translate(vCtx);
     vRes.expectEmpty('Unused properties');
     if (more.length) { throw new Error('Too many steps!'); }
