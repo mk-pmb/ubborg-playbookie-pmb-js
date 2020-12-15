@@ -2,6 +2,7 @@
 
 import parseMimeType from './parseMimeType';
 import decideFsAccessProps from './decideFsAccessProps';
+import verifyTargetMimeType from './verifyTargetMimeType';
 
 
 function learnMimeMeta(ctx) {
@@ -34,6 +35,7 @@ function learnMimeMeta(ctx) {
     force: false,
     ...decideFsAccessProps(popProp),
   });
+  verifyTargetMimeType(ctx);
 }
 
 

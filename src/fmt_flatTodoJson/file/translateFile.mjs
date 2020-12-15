@@ -25,16 +25,6 @@ async function translate(ctx) {
   const { meta } = ctx;
   const fileContentStep = await parseContent(ctx);
 
-  (function checkTgtMT() {
-    const k = 'targetMimeType';
-    const v = popProp.mustBe('undef | nonEmpty str', k);
-    if (!v) { return; }
-    const h = debugHints[k];
-    debugHints[k] = (h ? [h, v] : v);
-    if (meta.state === 'link') { return; }
-    throw new Error(k + ' is valid only for links.');
-  }());
-
   ctx.verifyHow.skipUnsuppAlgos([
     'gpgKeySummary',
   ], { ctx });
