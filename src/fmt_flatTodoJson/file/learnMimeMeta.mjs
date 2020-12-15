@@ -1,6 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import parseMimeType from './parseMimeType';
+import decideFsAccessProps from './decideFsAccessProps';
 
 
 function learnMimeMeta(ctx) {
@@ -27,25 +28,11 @@ function learnMimeMeta(ctx) {
     copy: { dest: path, content: '', force: false },
   } });
 
-  function createOrEnforce(prop, df) {
-    const cr = popProp.mustBe('undef | nonEmpty str', 'created' + prop);
-    const en = popProp.mustBe('undef | nonEmpty str', 'enforced' + prop);
-    if (cr && (cr !== en)) {
-      throw new Error(`created${prop} different from enforced${
-        prop} isn't supported yet.`);
-      // We'd need to construct something ourselves that would 'stat'
-      // and then branch conditionally. => Postponed until required.
-    }
-    return (en || cr || df);
-  }
-
   Object.assign(meta, {
     state: mimeInfo.state,
     follow: true,
     force: false,
-    owner: createOrEnforce('Owner'),
-    group: createOrEnforce('Group'),
-    mode: createOrEnforce('Modes'),
+    ...decideFsAccessProps(popProp),
   });
 }
 
