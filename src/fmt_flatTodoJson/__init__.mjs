@@ -22,7 +22,17 @@ const typeTranslateCache = new Map();
 
 const contextMethods = {
   warn(...args) { console.warn('%s:', this.taskName, ...args); },
-  upd(...news) { return Object.assign(this, ...news); },
+  upd(news) {
+    const dest = this;
+    const conflicts = [];
+    Object.keys(news).forEach(function chk(key) {
+      if (dest[key] === undefined) { return; }
+      conflicts.push(`${key} = '${dest[key]}' != '${news[key]}'`);
+    });
+    if (!conflicts.length) { return Object.assign(dest, news); }
+    throw new Error('Conflicting updates: ' + conflicts.join(', '));
+  },
+  forceUpd(news) { return Object.assign(this, news); },
 };
 
 

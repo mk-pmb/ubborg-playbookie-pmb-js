@@ -1,13 +1,9 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import pbkForgetVars from '../../pbkUtil/forgetVars';
-
 import makeValidationMethodPopper from './makeValidationMethodPopper';
 import learnMimeMeta from './learnMimeMeta';
 import parseContent from './parseContent';
-
-
-const statVar = 'tmp';
+import preCheck from './preCheck';
 
 
 async function translate(ctx) {
@@ -15,7 +11,6 @@ async function translate(ctx) {
   const path = decodeURIComponent(ctx.resId);
   ctx.upd({
     path,
-    statVar,
     debugHints: { ...popProp.mustBe('undef | dictObj', 'debugHints') },
     verifyHow: makeValidationMethodPopper(popProp),
   });
@@ -29,11 +24,10 @@ async function translate(ctx) {
 
   const fileSteps = [
     ctx.createIfMissing,
-    (ctx.needPreStat
-      && { name: '\t:preStat', stat: { path }, register: statVar }),
-    { name: '\t:meta', '#': ctx.debugHints, file: ctx.meta },
+    preCheck(ctx),
+    { name: '\t:meta', '#': ctx.debugHints, ...ctx.metaCond, file: ctx.meta },
     (fileContentStep && { name: '\t:content', ...fileContentStep }),
-    (ctx.needPreStat && pbkForgetVars(statVar)),
+    preCheck.cleanup(ctx),
   ];
   return fileSteps;
 }

@@ -14,16 +14,13 @@ function learnMimeMeta(ctx) {
   }
 
   const meta = { path, state: 'absent' };
-  ctx.upd({
-    meta,
-    createIfMissing: false,
-    needPreStat: false,
-  });
+  ctx.upd({ meta });
 
   const mimeType = popProp.mustBe('nul | nonEmpty str', 'mimeType');
   if (mimeType === null) { return; }
 
   const mimeInfo = parseMimeType(mimeType);
+  if (mimeInfo.fx) { mimeInfo.fx(ctx); }
   ctx.upd(mimeInfo.regular && { createIfMissing: {
     name: '\t:createIfMissing',
     copy: { dest: path, content: '', force: false },

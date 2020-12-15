@@ -2,9 +2,13 @@
 
 import pbkVarSlot from '../../pbkUtil/varSlot';
 
+import preCheck from './preCheck';
+
+const { tmpVar } = preCheck;
+
 
 function configureLink(ctx, dest) {
-  const { meta, statVar } = ctx;
+  const { meta } = ctx;
   meta.src = dest;
   meta.follow = false;  // otherwise we might chown/chmod the target!
 
@@ -21,10 +25,10 @@ function configureLink(ctx, dest) {
         config system and the old value is "backed up" somewhere in your
         config recipe git repo.
   */
-  ctx.upd({ needPreStat: true });
+  ctx.upd({ preCheck: 'stat' });
   meta.force = pbkVarSlot(vs => vs.condList('or', [
-    `not ${statVar}.stat.exists`,
-    `${statVar}.stat.islnk`,
+    `not ${tmpVar}.stat.exists`,
+    `${tmpVar}.stat.islnk`,
   ]));
 }
 

@@ -2,6 +2,8 @@
 
 import splitOnce from 'split-string-or-buffer-once-pmb';
 
+import parseMountPointDir from './parseMountPointDir';
+
 
 function lcInArray(x, a) { return a.includes(x && String(x).toLowerCase()); }
 
@@ -14,6 +16,7 @@ const charsetsCompatibleToUtf8 = [
 
 function parseMimeType(mt) {
   const [typeParts, ...attrs] = mt.split(/\s*;\s*/);
+  const nAttrs = attrs.length;
   const [typeCateg, typeName, ...subTypes] = typeParts.split(/\//);
   const mimeInfo = { regular: false };
 
@@ -21,11 +24,14 @@ function parseMimeType(mt) {
   const reguFile = { state: 'file', regular: true };
 
   function decide() {
+    if (mt === 'inode/directory; or-active-mountpoint') {
+      return { state: typeName, fx: parseMountPointDir };
+    }
     if (subTypes.length) { unsupp(); }
     if (typeCateg === 'inode') {
-      if (attrs.length) { unsupp(); }
-      if (typeName === 'x-empty') { return reguFile; }
+      if (nAttrs) { unsupp(); }
       if (typeName === 'directory') { return { state: typeName }; }
+      if (typeName === 'x-empty') { return reguFile; }
       if (typeName === 'symlink') { return { state: 'link' }; }
       unsupp();
     }
