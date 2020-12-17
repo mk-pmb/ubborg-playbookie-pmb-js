@@ -3,6 +3,7 @@
 import getOwn from 'getown';
 import objPop from 'objpop';
 import mustBe from 'typechecks-pmb/must-be';
+import aMap from 'map-assoc-core';
 
 import parseDpkgPolicy from '../parseDpkgPolicy';
 
@@ -71,15 +72,18 @@ function translate(ctx) {
 
 
 const dfrKey = 'deferredDebPkgs';
-const aptDownloadProgressHint = (function hint() {
-  const msg = [
+
+const hintSteps = aMap({
+  pkgListUpd: 'Gonna update package lists, this may take a while.',
+  aptDownloadProgress: [
     ('Gonna install packages now. One way to monitor apt-get downloads is: '
       + 'sudo watch ls -ho /var/cache/apt/archives/partial/'),
     ('When downloads are done, you can monitor setup activity with: '
       + 'sudo tail -F /var/log/dpkg.log'),
-  ];
-  return { name: `\t:${dfrKey}:downloadProgressHint`, debug: { msg } };
-}());
+  ],
+}, function hintStep(msg, taskName) {
+  return { name: `\t:${dfrKey}:${taskName}Hint`, debug: { msg } };
+});
 
 
 function undefer(getSpecProp) {
@@ -89,7 +93,7 @@ function undefer(getSpecProp) {
   const steps = [];
 
   if (sPop.mustBe('undef | bool', 'updatePkgLists')) {
-    steps.push(debPkgRepo.pkgListUpdate(false));
+    steps.push(hintSteps.pkgListUpd, debPkgRepo.pkgListUpdate(false));
   }
 
   sPop.mustBe('undef | pos0', 'modifies');
@@ -108,7 +112,7 @@ function undefer(getSpecProp) {
     const [draft, ...more] = translate(vCtx);
     vRes.expectEmpty('Unused properties');
     if (more.length) { throw new Error('Too many steps!'); }
-    if (state === 'installed') { steps.push(aptDownloadProgressHint); }
+    if (state === 'installed') { steps.push(hintSteps.aptDownloadProgress); }
     steps.push({ name: `\t:${dfrKey}:${prop}`, ...draft });
   }
   tr('removes',   'absent');
