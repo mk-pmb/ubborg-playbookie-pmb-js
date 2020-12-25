@@ -63,7 +63,7 @@ function draftObjToYaml(draft, ctx) {
       return (pt
         .replace(/\t/g, ctx.taskName)
         .replace(/(^|\n)(?= *\S)/g, '$1  ')
-      );
+      ) + '\n';
     }
     if (!is.obj(draft)) {
       throw new Error(`Unexpected type of translation draft part for ${
