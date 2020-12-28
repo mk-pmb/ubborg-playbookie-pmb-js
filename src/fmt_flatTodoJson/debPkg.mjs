@@ -74,7 +74,7 @@ function translate(ctx) {
 const dfrKey = 'deferredDebPkgs';
 
 const hintSteps = aMap({
-  pkgListUpd: 'Gonna update package lists, this may take a while.',
+  pkgListUpd: 'Gonna update package lists. This may take a while.',
   aptDownloadProgress: [
     ('Gonna install packages now. One way to monitor apt-get downloads is: '
       + 'sudo watch ls -ho /var/cache/apt/archives/partial/'),
