@@ -5,7 +5,7 @@ import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 import objPop from 'objpop';
 import vTry from 'vtry';
-import yamlify from 'jsonbased-yamlify-pmb';
+import yamlify from 'yamlify-safe-pmb';
 
 import noopRes from './noop';
 
