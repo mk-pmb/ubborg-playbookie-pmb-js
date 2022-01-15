@@ -47,9 +47,7 @@ const oul = function translate(ctx) {
     return { user: { state: 'absent' } };
   }
 
-  return [
-    { name: ctx.taskName + ':meta',
-      user: {
+  const userSpec = {
         ...basics,
         state: 'present',
         uid: popProp.mustBe('undef | pos num', 'userIdNum'),
@@ -63,8 +61,10 @@ const oul = function translate(ctx) {
           'preserveExistingPasswordHash') ? 'on_create' : 'always'),
         system: !popProp.mustBe('bool', 'interactive', false),
         shell: parseShell(popProp),
-      },
-    },
+  };
+
+  return [
+    { name: ctx.taskName + ':meta', user: userSpec },
     { name: ctx.taskName + ':pwlock',
       // Ansible docs for "password_lock" say
       // "Do not change the password in the same task."
