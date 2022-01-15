@@ -48,19 +48,19 @@ const oul = function translate(ctx) {
   }
 
   const userSpec = {
-        ...basics,
-        state: 'present',
-        uid: popProp.mustBe('undef | pos num', 'userIdNum'),
-        append: true,
-        create_home: false,
-        comment: makeGecosComment(popStrEmptyUndef),
-        group: popProp.mustBe('undef | nonEmpty str', 'primaryGroupName'),
-        home: popProp.mustBe('nonEmpty str', 'homeDirPath'),
-        password: popProp.mustBe('nonEmpty str', 'passwordHash', '!'),
-        update_password: (popProp.mustBe('bool',
-          'preserveExistingPasswordHash') ? 'on_create' : 'always'),
-        system: !popProp.mustBe('bool', 'interactive', false),
-        shell: parseShell(popProp),
+    ...basics,
+    state: 'present',
+    uid: popProp.mustBe('undef | pos num', 'userIdNum'),
+    append: true,
+    create_home: false,
+    comment: makeGecosComment(popStrEmptyUndef),
+    group: popProp.mustBe('undef | nonEmpty str', 'primaryGroupName'),
+    home: popProp.mustBe('nonEmpty str', 'homeDirPath'),
+    password: popProp.mustBe('nonEmpty str', 'passwordHash', '!'),
+    update_password: (popProp.mustBe('bool',
+      'preserveExistingPasswordHash') ? 'on_create' : 'always'),
+    system: !popProp.mustBe('bool', 'interactive', false),
+    shell: parseShell(popProp),
   };
 
   return [
