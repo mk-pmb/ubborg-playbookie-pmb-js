@@ -20,8 +20,12 @@
 
   "main": "src/playbookie.js",
   "bin": "bin/cli.js",
-  "scripts": { "test": "nodemjs test/all.js" },
+  "scripts": {
+    "lint": "elp",
+    "test": "elp && nodemjs test/all.mjs"
+  },
   "directories": { "test": "test" },
+  "eslintConfig": { "extends": "nodejs-pmb" },
 
   "dependencies": {
     "esmod-pmb": "^0.1.11",
