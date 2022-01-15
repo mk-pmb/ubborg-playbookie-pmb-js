@@ -1,9 +1,9 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import makeValidationMethodPopper from './makeValidationMethodPopper';
-import learnMimeMeta from './learnMimeMeta';
-import parseContent from './parseContent';
-import preCheck from './preCheck';
+import makeValidationMethodPopper from './makeValidationMethodPopper.mjs';
+import learnMimeMeta from './learnMimeMeta.mjs';
+import parseContent from './parseContent.mjs';
+import preCheck from './preCheck.mjs';
 
 
 async function translate(ctx) {

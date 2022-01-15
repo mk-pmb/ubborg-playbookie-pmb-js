@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import login from './osUserLogin';
+import login from './osUserLogin.mjs';
 
 function translate(ctx) {
   const { popProp } = ctx;

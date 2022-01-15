@@ -5,9 +5,9 @@ import objPop from 'objpop';
 import mustBe from 'typechecks-pmb/must-be';
 import aMap from 'map-assoc-core';
 
-import parseDpkgPolicy from '../parseDpkgPolicy';
+import parseDpkgPolicy from '../parseDpkgPolicy.mjs';
 
-import debPkgRepo from './debPkgRepo';
+import debPkgRepo from './debPkgRepo.mjs';
 
 
 const simpleStates = {

@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import preCheck from './preCheck';
+import preCheck from './preCheck.mjs';
 
 
 const { tmpVar } = preCheck;

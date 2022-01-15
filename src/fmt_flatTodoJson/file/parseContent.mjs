@@ -1,8 +1,8 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import maybeUploadLocalFiles from './maybeUploadLocalFiles';
-import maybeDownloadFilesFromUrls from './maybeDownloadFilesFromUrls';
-import configureLink from './configureLink';
+import maybeUploadLocalFiles from './maybeUploadLocalFiles.mjs';
+import maybeDownloadFilesFromUrls from './maybeDownloadFilesFromUrls.mjs';
+import configureLink from './configureLink.mjs';
 
 
 function maybeJoin(x) { return ((x && x.join) ? x.join('') : x); }

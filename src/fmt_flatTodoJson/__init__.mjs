@@ -7,7 +7,7 @@ import objPop from 'objpop';
 import vTry from 'vtry';
 import yamlify from 'yamlify-safe-pmb';
 
-import noopRes from './noop';
+import noopRes from './noop.mjs';
 
 
 const simpleTypes = {

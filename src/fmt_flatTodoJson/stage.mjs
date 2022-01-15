@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import debPkg from './debPkg';
+import debPkg from './debPkg.mjs';
 
 
 async function translate(ctx) {

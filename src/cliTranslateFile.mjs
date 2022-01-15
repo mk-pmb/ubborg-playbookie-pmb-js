@@ -4,7 +4,7 @@ import readDataFile from 'read-data-file';
 import mustBe from 'typechecks-pmb/must-be';
 import pEachSeries from 'p-each-series';
 
-import makeTranslator from './init';
+import makeTranslator from './init.mjs';
 
 
 async function runFromCli(inputFilename) {

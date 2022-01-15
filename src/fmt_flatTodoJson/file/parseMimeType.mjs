@@ -2,7 +2,7 @@
 
 import splitOnce from 'split-string-or-buffer-once-pmb';
 
-import parseMountPointDir from './parseMountPointDir';
+import parseMountPointDir from './parseMountPointDir.mjs';
 
 
 function lcInArray(x, a) { return a.includes(x && String(x).toLowerCase()); }

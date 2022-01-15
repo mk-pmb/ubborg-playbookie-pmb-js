@@ -1,8 +1,8 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import pbkVarSlot from '../../pbkUtil/varSlot';
+import pbkVarSlot from '../../pbkUtil/varSlot.mjs';
 
-import preCheck from './preCheck';
+import preCheck from './preCheck.mjs';
 
 const { tmpVar } = preCheck;
 

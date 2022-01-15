@@ -3,6 +3,6 @@
 import 'usnam-pmb';
 import 'p-fatal';
 
-import impl from '../src/cliTranslateFile';
+import impl from '../src/cliTranslateFile.mjs';
 
 impl.runFromCli(...process.argv.slice(2));

@@ -3,7 +3,7 @@
 import isStr from 'is-string';
 import isFun from 'is-fn';
 
-import pbkForgetVars from '../../pbkUtil/forgetVars';
+import pbkForgetVars from '../../pbkUtil/forgetVars.mjs';
 
 const tmpVar = 'tmp';
 

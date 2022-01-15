@@ -1,8 +1,8 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import parseMimeType from './parseMimeType';
-import decideFsAccessProps from './decideFsAccessProps';
-import verifyTargetMimeType from './verifyTargetMimeType';
+import parseMimeType from './parseMimeType.mjs';
+import decideFsAccessProps from './decideFsAccessProps.mjs';
+import verifyTargetMimeType from './verifyTargetMimeType.mjs';
 
 
 function learnMimeMeta(ctx) {
