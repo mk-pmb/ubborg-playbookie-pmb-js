@@ -1,4 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
+//
+// https://docs.ansible.com/ansible/latest/modules/user_module.html
+
 
 const workarounds = {
 
