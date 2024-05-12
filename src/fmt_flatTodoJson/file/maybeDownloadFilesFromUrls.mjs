@@ -18,7 +18,7 @@ function maybeDownloadFilesFromUrls(ctx, content) {
     'Target inode type for ' + dlfKey)(meta.state);
 
   urls.forEach((u, i) => mustBe.nest('Download URL #' + (i + 1), u));
-  dlHow.url = urls[0];
+  [dlHow.url] = urls;
 
   const hash = verifyHow.findStrongestHash();
   if (!hash) { nope('mandates content checksum validation'); }
