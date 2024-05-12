@@ -1,5 +1,5 @@
 { "name": "ubborg-playbookie-pmb",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Translate ubborg dependency trees into ansible playbooks.",
   "keywords": [],
 
@@ -28,6 +28,7 @@
   "eslintConfig": { "extends": "nodejs-pmb" },
 
   "dependencies": {
+    "cli-args-parse-dashdash-2402-pmb": "^1.0.1",
     "esmod-pmb": "^0.1.13",
     "getown": "^1.0.0",
     "is-fn": "^2.0.0",

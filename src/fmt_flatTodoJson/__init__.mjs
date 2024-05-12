@@ -62,7 +62,7 @@ function draftObjToYaml(draft, ctx) {
     if (is.str(pt)) {
       return (pt
         .replace(/\t/g, ctx.taskName)
-        .replace(/(^|\n)(?= *\S)/g, '$1  ')
+        .replace(/(^|\n)(?= *\S)/g, '$1    ')
       ) + '\n';
     }
     if (!is.obj(draft)) {
