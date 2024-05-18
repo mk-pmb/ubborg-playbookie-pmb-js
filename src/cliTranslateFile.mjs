@@ -9,16 +9,25 @@ import makeTranslator from './init.mjs';
 
 
 function genDefaultYamlHeader(cliOpt) {
+  const hosts = cliOpt.pbk_hosts;
   const lines = [
     '%YAML 1.1',
-    '# -*- coding: UTF-8, tab-width: 4 -*-',
+    '# -*- coding: UTF-8, tab-width: 2 -*-',
     '---',
     '',
     '- gather_facts: false',
     '  name: ' + (cliOpt.pbk_name || 'Unnamed Playbook'),
-    '  hosts: ' + (cliOpt.pbk_hosts || 'all'),
-    '  tasks:',
+    '  hosts: ' + (hosts || 'all'),
   ];
+
+  let conn = cliOpt.pbk_conn;
+  if (conn) {
+    lines.push('  connection: ' + conn);
+    // e.g. `connection: chroot` with path given as hostname:
+    // ansible-playbook --inventory='/target,' -- playbook.yaml
+  }
+
+  lines.push('  tasks:');
   console.log(lines.join('\n'));
 }
 
