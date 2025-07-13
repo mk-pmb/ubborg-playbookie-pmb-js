@@ -20,7 +20,7 @@ function genDefaultYamlHeader(cliOpt) {
     '  hosts: ' + (hosts || 'all'),
   ];
 
-  let conn = cliOpt.pbk_conn;
+  const conn = cliOpt.pbk_conn;
   if (conn) {
     lines.push('  connection: ' + conn);
     // e.g. `connection: chroot` with path given as hostname:
